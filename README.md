@@ -214,7 +214,7 @@ evidence documents:
 | fastapi | 0.115.0 |
 | uvicorn[standard] | 0.32.0 |
 | pydantic | 2.10.0 |
-| python-multipart | 0.0.20 |
+| python-multipart | 0.0.22 |
 
 ---
 
