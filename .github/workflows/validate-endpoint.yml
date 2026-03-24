@@ -1,0 +1,158 @@
+name: Validate uiao-validation-targets Endpoint
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  workflow_dispatch:
+    inputs:
+      log_level:
+        description: "Log level for uvicorn"
+        required: false
+        default: "info"
+
+jobs:
+  validate:
+    name: Start service and validate endpoints
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------------------------
+      # Build & start the FastAPI service via Docker Compose
+      # -----------------------------------------------------------------------
+      - name: Build Docker image
+        run: docker compose build
+
+      - name: Start service in background
+        run: docker compose up -d
+
+      - name: Wait for service to be healthy
+        run: |
+          echo "Waiting for /health to respond..."
+          for i in $(seq 1 30); do
+            status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health || true)
+            if [ "$status" = "200" ]; then
+              echo "Service is up (attempt $i)"
+              break
+            fi
+            echo "Attempt $i: HTTP $status – retrying in 2 s"
+            sleep 2
+          done
+          curl -sf http://localhost:8000/health | jq .
+
+      # -----------------------------------------------------------------------
+      # Endpoint smoke tests
+      # -----------------------------------------------------------------------
+      - name: GET /health
+        run: |
+          response=$(curl -sf http://localhost:8000/health)
+          echo "$response" | jq .
+          echo "$response" | jq -e '.status == "healthy"'
+
+      - name: GET /validation/fedramp-rev5-baseline
+        run: |
+          response=$(curl -sf http://localhost:8000/validation/fedramp-rev5-baseline)
+          echo "$response" | jq .
+          echo "$response" | jq -e '.baseline == "FedRAMP Moderate Rev 5"'
+
+      - name: POST /ingest-evidence (valid payload)
+        run: |
+          response=$(curl -sf -X POST http://localhost:8000/ingest-evidence \
+            -H "Content-Type: application/json" \
+            -d '{
+              "uuid": "a3f1e2c4-d5b6-4789-a0b1-c2d3e4f56789",
+              "title": "AC-2 Account Management Evidence",
+              "description": "Quarterly account review completed.",
+              "collected_on": "2026-03-24T00:00:00Z",
+              "control_id": "AC-2",
+              "prop_id": "prop:ac-2-evidence-001"
+            }')
+          echo "$response" | jq .
+          echo "$response" | jq -e '.status == "valid"'
+
+      - name: POST /ingest-evidence (invalid prop_id – expect 422)
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:8000/ingest-evidence \
+            -H "Content-Type: application/json" \
+            -d '{
+              "uuid": "b4e2f3a5-c6d7-4890-b1c2-d3e4f5a67890",
+              "title": "Bad Evidence",
+              "description": "Missing prop: prefix.",
+              "collected_on": "2026-03-24T00:00:00Z",
+              "control_id": "AC-2",
+              "prop_id": "invalid-id"
+            }')
+          echo "HTTP status: $status"
+          [ "$status" = "422" ] || (echo "Expected 422, got $status" && exit 1)
+
+      - name: POST /telemetry
+        run: |
+          response=$(curl -sf -X POST http://localhost:8000/telemetry \
+            -H "Content-Type: application/json" \
+            -d '{
+              "timestamp": "2026-03-24T00:00:01Z",
+              "control_id": "IA-5",
+              "event_type": "password_changed",
+              "status": "success",
+              "details": {"username": "alice.smith", "complexity_check": "passed"}
+            }')
+          echo "$response" | jq .
+          echo "$response" | jq -e '.status == "received"'
+
+      # -----------------------------------------------------------------------
+      # Validate static OSCAL evidence files contain required prop:id field
+      # -----------------------------------------------------------------------
+      - name: Validate OSCAL evidence – AC-2 prop:id present
+        run: |
+          value=$(jq -r '
+            .["back-matter"].resources[0].props[]
+            | select(.name == "prop:id")
+            | .value' \
+            telemetry/oscal-evidence/ac-2-evidence.json)
+          echo "prop:id = $value"
+          [[ "$value" == prop:* ]] || (echo "prop:id does not start with 'prop:'" && exit 1)
+
+      - name: Validate OSCAL evidence – IA-5 prop:id present
+        run: |
+          value=$(jq -r '
+            .["back-matter"].resources[0].props[]
+            | select(.name == "prop:id")
+            | .value' \
+            telemetry/oscal-evidence/ia-5-evidence.json)
+          echo "prop:id = $value"
+          [[ "$value" == prop:* ]] || (echo "prop:id does not start with 'prop:'" && exit 1)
+
+      - name: Validate OSCAL evidence – AC-2 UUID present
+        run: |
+          uuid=$(jq -r '.["back-matter"].resources[0].uuid' \
+            telemetry/oscal-evidence/ac-2-evidence.json)
+          echo "UUID = $uuid"
+          [[ "$uuid" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$ ]] \
+            || (echo "UUID is not a valid UUIDv4" && exit 1)
+
+      # -----------------------------------------------------------------------
+      # pip-audit – check for known vulnerabilities in Python dependencies
+      # -----------------------------------------------------------------------
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Run pip-audit against requirements
+        run: pip-audit -r app/requirements.txt
+
+      # -----------------------------------------------------------------------
+      # Tear down
+      # -----------------------------------------------------------------------
+      - name: Stop service
+        if: always()
+        run: docker compose down

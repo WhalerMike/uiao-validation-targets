@@ -1,0 +1,96 @@
+{
+  "oscal-version": "1.3.0",
+  "metadata": {
+    "title": "IA-5 Authenticator Management – OSCAL Evidence",
+    "last-modified": "2026-03-24T00:00:00Z",
+    "version": "1.0.0",
+    "oscal-version": "1.3.0"
+  },
+  "back-matter": {
+    "resources": [
+      {
+        "uuid": "14448e1c-841c-478b-bdb0-06c892fddf0e",
+        "title": "IA-5 Authenticator Management Evidence Artifact",
+        "description": "Evidence artifact demonstrating compliance with FedRAMP Moderate Rev 5 control IA-5 (Authenticator Management). Captures password change events, MFA enrollment, and authenticator revocation from the identity platform.",
+        "props": [
+          {
+            "name": "prop:id",
+            "value": "prop:ia-5-evidence-001",
+            "class": "fedramp"
+          },
+          {
+            "name": "prop:control-id",
+            "value": "IA-5",
+            "class": "fedramp"
+          },
+          {
+            "name": "prop:baseline",
+            "value": "FedRAMP Moderate Rev 5",
+            "class": "fedramp"
+          },
+          {
+            "name": "prop:evidence-type",
+            "value": "artifact",
+            "class": "fedramp"
+          },
+          {
+            "name": "prop:poa-m-status",
+            "value": "not-applicable",
+            "class": "fedramp-poam"
+          }
+        ],
+        "rlinks": [
+          {
+            "href": "telemetry/logs/sample-audit-log.json",
+            "media-type": "application/json"
+          }
+        ],
+        "remarks": "Collected via uiao-validation-targets telemetry endpoint. Validated against OSCAL 1.3.0 schema and FedRAMP Moderate Rev 5 baseline."
+      }
+    ]
+  },
+  "assessment-results": {
+    "uuid": "c84da990-2689-4307-af9a-3e36531422df",
+    "metadata": {
+      "title": "IA-5 Assessment Results",
+      "last-modified": "2026-03-24T00:00:00Z",
+      "version": "1.0.0",
+      "oscal-version": "1.3.0"
+    },
+    "import-ap": {
+      "href": "#ia-5-assessment-plan"
+    },
+    "results": [
+      {
+        "uuid": "ba5dfbd5-81ee-4175-b7c1-527a81e7fe19",
+        "title": "IA-5 Compliance Assessment – 2026 Q1",
+        "description": "Automated assessment of IA-5 compliance based on identity platform telemetry data.",
+        "start": "2026-03-24T00:00:00Z",
+        "end": "2026-03-24T07:45:30Z",
+        "reviewed-controls": {
+          "control-selections": [
+            {
+              "include-controls": [
+                { "control-id": "ia-5" }
+              ]
+            }
+          ]
+        },
+        "findings": [
+          {
+            "uuid": "5d5d0389-1b4a-4031-97b1-20adfafd429b",
+            "title": "IA-5 Authenticator Management – Compliant",
+            "description": "Password complexity enforced. MFA enrollment rate 98%. Authenticator revocation executed within SLA. Passwords expire within 60-day policy window.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "ia-5_obj",
+              "status": {
+                "state": "satisfied"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
