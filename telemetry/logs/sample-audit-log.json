@@ -1,0 +1,118 @@
+[
+  {
+    "timestamp": "2026-03-24T00:00:01Z",
+    "control_id": "AC-2",
+    "event_type": "account_created",
+    "status": "success",
+    "details": {
+      "username": "svc-deploy-01",
+      "account_type": "service",
+      "created_by": "iam-automation",
+      "source_ip": "10.0.1.5"
+    }
+  },
+  {
+    "timestamp": "2026-03-24T00:05:12Z",
+    "control_id": "AC-2",
+    "event_type": "account_reviewed",
+    "status": "success",
+    "details": {
+      "reviewer": "sec-admin",
+      "accounts_reviewed": 142,
+      "anomalies_detected": 0,
+      "review_cycle": "quarterly"
+    }
+  },
+  {
+    "timestamp": "2026-03-24T01:10:33Z",
+    "control_id": "AC-2",
+    "event_type": "account_disabled",
+    "status": "success",
+    "details": {
+      "username": "contractor-jdoe",
+      "reason": "contract_expired",
+      "disabled_by": "hr-automation"
+    }
+  },
+  {
+    "timestamp": "2026-03-24T02:15:44Z",
+    "control_id": "IA-5",
+    "event_type": "password_changed",
+    "status": "success",
+    "details": {
+      "username": "alice.smith",
+      "complexity_check": "passed",
+      "days_until_expiry": 60,
+      "source_ip": "192.168.2.10"
+    }
+  },
+  {
+    "timestamp": "2026-03-24T02:30:55Z",
+    "control_id": "IA-5",
+    "event_type": "mfa_enrolled",
+    "status": "success",
+    "details": {
+      "username": "bob.jones",
+      "mfa_type": "TOTP",
+      "enrolled_by": "self-service"
+    }
+  },
+  {
+    "timestamp": "2026-03-24T03:00:00Z",
+    "control_id": "IA-5",
+    "event_type": "authenticator_revoked",
+    "status": "success",
+    "details": {
+      "username": "charlie.brown",
+      "reason": "lost_device",
+      "revoked_by": "helpdesk"
+    }
+  },
+  {
+    "timestamp": "2026-03-24T04:05:22Z",
+    "control_id": "SI-3",
+    "event_type": "malware_scan_completed",
+    "status": "success",
+    "details": {
+      "host": "app-server-01",
+      "threats_detected": 0,
+      "definitions_version": "2026-03-24.001",
+      "scan_duration_seconds": 312
+    }
+  },
+  {
+    "timestamp": "2026-03-24T05:11:08Z",
+    "control_id": "SI-3",
+    "event_type": "malware_detected",
+    "status": "alert",
+    "details": {
+      "host": "dev-workstation-07",
+      "threat_name": "Trojan.GenericKD.46",
+      "action_taken": "quarantined",
+      "definitions_version": "2026-03-24.001"
+    }
+  },
+  {
+    "timestamp": "2026-03-24T06:20:19Z",
+    "control_id": "SI-3",
+    "event_type": "signature_update",
+    "status": "success",
+    "details": {
+      "previous_version": "2026-03-23.004",
+      "new_version": "2026-03-24.001",
+      "hosts_updated": 58
+    }
+  },
+  {
+    "timestamp": "2026-03-24T07:45:30Z",
+    "control_id": "AC-2",
+    "event_type": "privileged_access_review",
+    "status": "success",
+    "details": {
+      "reviewer": "ciso-delegate",
+      "privileged_accounts_reviewed": 18,
+      "accounts_removed": 2,
+      "review_trigger": "scheduled_quarterly"
+    }
+  }
+]

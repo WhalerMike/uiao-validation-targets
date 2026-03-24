@@ -1,0 +1,22 @@
+# HELP fedramp_ac2_active_accounts Total number of active user accounts (AC-2)
+# TYPE fedramp_ac2_active_accounts gauge
+fedramp_ac2_active_accounts{environment="production",account_type="individual"} 312
+fedramp_ac2_active_accounts{environment="production",account_type="service"} 47
+
+# HELP fedramp_ia5_password_expiry_days Days until the oldest active password expires (IA-5)
+# TYPE fedramp_ia5_password_expiry_days gauge
+fedramp_ia5_password_expiry_days{environment="production"} 14
+
+# HELP fedramp_si3_threats_detected_total Total malware/threat detections since last reset (SI-3)
+# TYPE fedramp_si3_threats_detected_total gauge
+fedramp_si3_threats_detected_total{environment="production",severity="high"} 1
+fedramp_si3_threats_detected_total{environment="production",severity="medium"} 3
+
+# HELP fedramp_au2_log_ingestion_rate_per_second Current log ingestion rate (AU-2)
+# TYPE fedramp_au2_log_ingestion_rate_per_second gauge
+fedramp_au2_log_ingestion_rate_per_second{environment="production"} 2048.5
+
+# HELP fedramp_cm6_config_drift_hosts Number of hosts with configuration drift detected (CM-6)
+# TYPE fedramp_cm6_config_drift_hosts gauge
+fedramp_cm6_config_drift_hosts{environment="production",severity="critical"} 0
+fedramp_cm6_config_drift_hosts{environment="production",severity="warning"} 4
